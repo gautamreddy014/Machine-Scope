@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MachineScope — Overview</title>
+  <meta name="description" content="MachineScope — Industrial Failure Intelligence. Predict machine failures, understand sensor behaviour, and plan maintenance.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563EB'/%3E%3Cpath d='M7 20l5-6 4 4 4-7 5 9' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="MachineScope home">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 20.5 7.3v9.4L12 21.5 3.5 16.7V7.3Z" opacity=".55"/><path d="M7 14.5l2.6-3 2.2 2 2.6-4.5 2.6 5"/></svg></span>
+        <span><span class="brand-name">MachineScope</span><br><span class="brand-sub">Industrial Failure Intelligence</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Main">
+        <a href="index.html" class="active" aria-current="page"><i data-icon="layout-dashboard"></i>Overview</a>
+        <a href="analysis.html"><i data-icon="chart-scatter"></i>Comprehensive Data Analysis</a>
+      </nav>
+      <div class="header-meta">
+        <span class="status-pill" title="Loaded dataset"><span id="statusDot" class="dot busy"></span><span id="statusText">Connecting…</span></span>
+        <span class="status-pill last" title="Last analysis run"><i data-icon="clock"></i>Last analysis: <strong id="lastAnalysis">—</strong></span>
+      </div>
+      <button class="btn btn-icon btn-ghost menu-btn" id="menuBtn" aria-label="Toggle navigation" aria-expanded="false"><i data-icon="menu"></i></button>
+    </div>
+  </header>
+
+  <main class="page" id="top">
+    <div class="print-only"><h1>MachineScope — Analysis Summary</h1><p class="muted" id="printStamp"></p></div>
+
+    <!-- ============================================================ WELCOME -->
+    <section class="hero" aria-labelledby="heroTitle">
+      <div>
+        <div class="eyebrow"><i data-icon="factory"></i>Predictive maintenance analytics</div>
+        <h1 id="heroTitle">Industrial Failure <span>Intelligence</span></h1>
+        <p class="lead">Predict machine failures, understand sensor behaviour, and make smarter maintenance decisions.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" id="runBtn"><i data-icon="play"></i>Run Analysis</button>
+          <a class="btn btn-lg" href="analysis.html"><i data-icon="compass"></i>Explore Analytics</a>
+          <label class="chip-check" title="Retrain the Random Forest and baseline from scratch (≈30 s)">
+            <input type="checkbox" id="retrainChk"><span><i data-icon="refresh-cw"></i>Retrain model</span>
+          </label>
+        </div>
+      </div>
+      <div class="dataset-box" aria-live="polite">
+        <h3><i data-icon="database"></i>Loaded dataset</h3>
+        <dl class="kv" id="datasetKv">
+          <dt>Name</dt><dd class="skeleton">ai4i2020.csv</dd>
+          <dt>Records</dt><dd class="skeleton">10,000</dd>
+          <dt>Source</dt><dd class="skeleton">data/ai4i2020.csv</dd>
+          <dt>Model trained</dt><dd class="skeleton">—</dd>
+        </dl>
+        <p class="small muted" id="datasetNote" style="margin-top:10px"></p>
+        <div class="dataset-actions">
+          <label class="btn btn-sm" for="uploadInput"><i data-icon="upload"></i>Load local CSV</label>
+          <input type="file" id="uploadInput" accept=".csv,text/csv" class="sr-only">
+          <button class="btn btn-sm" id="resetDataBtn"><i data-icon="rotate-ccw"></i>Bundled dataset</button>
+          <button class="btn btn-sm" id="printBtn"><i data-icon="printer"></i>Print summary</button>
+        </div>
+      </div>
+    </section>
+
+    <nav class="no-print" aria-label="Sections" style="margin-top:18px">
+      <div class="seg" id="jumpNav">
+        <button data-target="kpis" class="on">Overview</button>
+        <button data-target="model">Model evaluation</button>
+        <button data-target="predict">Quick prediction</button>
+        <button data-target="anomalies">Anomaly detection</button>
+        <button data-target="maintenance">Maintenance planner</button>
+      </div>
+    </nav>
+
+    <!-- ============================================================ KPIs -->
+    <section class="section" id="kpis" style="margin-top:18px" aria-label="Key indicators">
+      <div class="kpi-groups">
+        <div class="kpi-group">
+          <div class="kpi-group-head">
+            <h3><i data-icon="database"></i>Dataset</h3>
+            <span class="tag tag-actual" title="Recorded 'Machine failure' labels"><i data-icon="flag"></i>Actual labels</span>
+          </div>
+          <div class="kpi-row c3">
+            <div class="kpi"><div class="kpi-label"><span class="kpi-ico ico-blue"><i data-icon="cpu"></i></span>Machines analysed</div><div class="kpi-value" id="kTotal">—</div><div class="kpi-caption">records in dataset</div></div>
+            <div class="kpi"><div class="kpi-label"><span class="kpi-ico ico-red"><i data-icon="triangle-alert"></i></span>Actual failures</div><div class="kpi-value" id="kFails">—</div><div class="kpi-caption">labelled failures</div></div>
+            <div class="kpi"><div class="kpi-label"><span class="kpi-ico ico-amber"><i data-icon="activity"></i></span>Failure rate</div><div class="kpi-value" id="kRate">—</div><div class="kpi-caption">of all records</div></div>
+          </div>
+        </div>
+        <div class="kpi-group">
+          <div class="kpi-group-head">
+            <h3><i data-icon="brain"></i>Random Forest model</h3>
+            <span class="tag tag-model" id="kTestTag"><i data-icon="target"></i>Held-out test set</span>
+          </div>
+          <div class="kpi-row c4">
+            <div class="kpi"><div class="kpi-label"><span class="kpi-ico ico-green"><i data-icon="circle-check"></i></span>Accuracy</div><div class="kpi-value" id="kAcc">—</div><div class="kpi-caption" id="kAccCap">correct / total predictions</div></div>
+            <div class="kpi"><div class="kpi-label"><span class="kpi-ico ico-blue"><i data-icon="crosshair"></i></span>Precision</div><div class="kpi-value" id="kPrec">—</div><div class="kpi-caption">predicted failures that were real</div></div>
+            <div class="kpi"><div class="kpi-label"><span class="kpi-ico ico-teal"><i data-icon="radar"></i></span>Recall</div><div class="kpi-value" id="kRec">—</div><div class="kpi-caption">real failures caught</div></div>
+            <div class="kpi"><div class="kpi-label"><span class="kpi-ico ico-violet"><i data-icon="sigma"></i></span>F1-score</div><div class="kpi-value" id="kF1">—</div><div class="kpi-caption">harmonic mean of P &amp; R</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ DASHBOARD CHARTS -->
+    <section class="section" aria-labelledby="dashTitle">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow"><i data-icon="chart-column"></i>Failure analysis</div>
+          <h2 id="dashTitle">What the historical data shows</h2>
+          <p>All charts in this section use the <b>actual</b> failure labels recorded in the dataset — not model predictions.</p>
+        </div>
+      </div>
+      <div class="grid g-12">
+        <div class="card span-4 loading-block" id="cardDist">
+          <div class="card-head"><div><div class="card-title"><i data-icon="chart-pie"></i>Failure vs non-failure</div><div class="card-sub">Actual label distribution</div></div><span class="tag tag-actual">Actual</span></div>
+          <div class="chart short" id="chDist"></div>
+        </div>
+        <div class="card span-4 loading-block" id="cardModes">
+          <div class="card-head"><div><div class="card-title"><i data-icon="layers"></i>Failures by type</div><div class="card-sub">Failure-mode flags (a record can have several)</div></div><span class="tag tag-actual">Actual</span></div>
+          <div class="chart short" id="chModes"></div>
+          <div class="card-foot" id="modesNote"></div>
+        </div>
+        <div class="card span-4 loading-block" id="cardTypes">
+          <div class="card-head"><div><div class="card-title"><i data-icon="box"></i>Machine types</div><div class="card-sub">Records and actual failure rate by quality type</div></div></div>
+          <div class="chart short" id="chTypes"></div>
+        </div>
+
+        <div class="card span-7 loading-block" id="cardSensors">
+          <div class="card-head">
+            <div><div class="card-title"><i data-icon="thermometer"></i>Important sensor summary</div><div class="card-sub">Mean reading for normal vs actually-failed records. Effect size = standardised mean difference (Cohen's d).</div></div>
+          </div>
+          <div class="table-wrap" style="max-height:none"><table class="data" id="sensorTable"><thead><tr><th>Sensor</th><th class="r">Overall mean</th><th class="r">Normal mean</th><th class="r">Failed mean</th><th>Effect size (d)</th></tr></thead><tbody></tbody></table></div>
+          <div class="card-foot">An association with failure is not proof that the sensor causes failure.</div>
+        </div>
+        <div class="card span-5 loading-block" id="cardModelMini">
+          <div class="card-head"><div><div class="card-title"><i data-icon="gauge"></i>Model performance overview</div><div class="card-sub" id="miniSub">Random Forest · held-out test set</div></div><a class="btn btn-sm" href="#model">Details</a></div>
+          <div class="chart short" id="chMini"></div>
+          <div class="card-foot" id="miniFoot"></div>
+        </div>
+
+        <div class="card span-12 loading-block" id="cardFlagged">
+          <div class="card-head">
+            <div><div class="card-title"><i data-icon="shield-alert"></i>Machines flagged for further inspection</div><div class="card-sub">Highest-priority records from the maintenance planner (out-of-fold model score + IQR screening)</div></div>
+            <div class="legend-strip"><span class="tag tag-model">Model score</span><span class="tag tag-anomaly">Statistical anomaly</span><span class="tag tag-actual">Actual label</span><a class="btn btn-sm" href="#maintenance">Open planner</a></div>
+          </div>
+          <div class="table-wrap"><table class="data" id="flaggedTable"><thead><tr><th>UDI</th><th>Product</th><th>Type</th><th>Priority</th><th class="r">Model score</th><th class="r">Anomalous sensors</th><th>Actual label</th><th>Basis</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ MODEL -->
+    <section class="section" id="model" aria-labelledby="modelTitle">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow"><i data-icon="brain"></i>Model evaluation</div>
+          <h2 id="modelTitle">How well does the model predict failures?</h2>
+          <p>Every metric below is computed on a held-out test set the model never saw during training. Nothing is hard-coded.</p>
+        </div>
+      </div>
+      <div id="modelInvalid"></div>
+      <div class="grid g-12" id="modelGrid">
+        <div class="card span-12 loading-block" id="cardMetrics">
+          <div class="card-head"><div><div class="card-title"><i data-icon="target"></i>Test-set metrics</div><div class="card-sub" id="metricsSub"></div></div><span class="tag tag-model">Model predictions vs actual labels</span></div>
+          <div class="metric-tiles" id="metricTiles"></div>
+          <div class="notice warn" style="margin-top:14px" id="accNote"><i data-icon="triangle-alert"></i><div></div></div>
+        </div>
+        <div class="card span-4 loading-block" id="cardCM">
+          <div class="card-head"><div><div class="card-title"><i data-icon="grid-3x3"></i>Confusion matrix</div><div class="card-sub">Rows: actual · Columns: predicted</div></div></div>
+          <div class="cm" id="cmGrid"></div>
+        </div>
+        <div class="card span-4 loading-block" id="cardROC">
+          <div class="card-head"><div><div class="card-title"><i data-icon="chart-line"></i>ROC curve</div><div class="card-sub" id="rocSub"></div></div></div>
+          <div class="chart short" id="chROC"></div>
+        </div>
+        <div class="card span-4 loading-block" id="cardPR">
+          <div class="card-head"><div><div class="card-title"><i data-icon="trending-up"></i>Precision–recall curve</div><div class="card-sub" id="prSub"></div></div></div>
+          <div class="chart short" id="chPR"></div>
+        </div>
+        <div class="card span-7 loading-block" id="cardCompare">
+          <div class="card-head"><div><div class="card-title"><i data-icon="arrow-up-down"></i>Model comparison</div><div class="card-sub">Same split, same features, same 0.5 threshold</div></div></div>
+          <div class="table-wrap" style="max-height:none"><table class="data" id="compareTable"><thead><tr><th>Model</th><th class="r">Accuracy</th><th class="r">Precision</th><th class="r">Recall</th><th class="r">F1</th><th class="r">ROC-AUC</th><th class="r">Avg precision</th></tr></thead><tbody></tbody></table></div>
+          <p class="small muted" style="margin-top:10px" id="cvNote"></p>
+        </div>
+        <div class="card span-5" id="cardMethod">
+          <div class="card-head"><div><div class="card-title"><i data-icon="book-open"></i>Evaluation methodology</div></div></div>
+          <ul class="method-list" id="methodList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ PREDICT -->
+    <section class="section" id="predict" aria-labelledby="predTitle">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow"><i data-icon="zap"></i>Quick prediction</div>
+          <h2 id="predTitle">Score a set of sensor readings</h2>
+          <p>Readings are sent to the Python backend, passed through the exact training-time pipeline, and scored by the Random Forest.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="predict-grid">
+          <form id="predictForm" novalidate>
+            <div class="form-grid">
+              <div class="field">
+                <label for="fType">Machine type</label>
+                <select class="select" id="fType" name="Type">
+                  <option value="L">L — low quality</option>
+                  <option value="M" selected>M — medium quality</option>
+                  <option value="H">H — high quality</option>
+                </select>
+                <span class="hint">Product quality variant</span>
+              </div>
+              <div class="field">
+                <label for="fAir">Air temperature <span class="unit">K</span></label>
+                <input class="input num" id="fAir" name="Air_Temperature" type="number" step="0.1" inputmode="decimal" required>
+                <span class="hint" data-range="Air_Temperature"></span><span class="err-msg" aria-live="polite"></span>
+              </div>
+              <div class="field">
+                <label for="fProc">Process temperature <span class="unit">K</span></label>
+                <input class="input num" id="fProc" name="Process_Temperature" type="number" step="0.1" inputmode="decimal" required>
+                <span class="hint" data-range="Process_Temperature"></span><span class="err-msg" aria-live="polite"></span>
+              </div>
+              <div class="field">
+                <label for="fSpeed">Rotational speed <span class="unit">rpm</span></label>
+                <input class="input num" id="fSpeed" name="Rotational_Speed" type="number" step="1" inputmode="numeric" required>
+                <span class="hint" data-range="Rotational_Speed"></span><span class="err-msg" aria-live="polite"></span>
+              </div>
+              <div class="field">
+                <label for="fTorque">Torque <span class="unit">Nm</span></label>
+                <input class="input num" id="fTorque" name="Torque" type="number" step="0.1" inputmode="decimal" required>
+                <span class="hint" data-range="Torque"></span><span class="err-msg" aria-live="polite"></span>
+              </div>
+              <div class="field">
+                <label for="fWear">Tool wear <span class="unit">min</span></label>
+                <input class="input num" id="fWear" name="Tool_Wear" type="number" step="1" inputmode="numeric" required>
+                <span class="hint" data-range="Tool_Wear"></span><span class="err-msg" aria-live="polite"></span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="predictBtn"><i data-icon="zap"></i>Predict</button>
+              <button type="button" class="btn" id="resetPredict"><i data-icon="rotate-ccw"></i>Reset</button>
+              <span class="seg" aria-label="Example inputs">
+                <button type="button" data-example="normal">Typical reading</button>
+                <button type="button" data-example="strain">High strain</button>
+                <button type="button" data-example="heat">Low ΔT, low speed</button>
+              </span>
+            </div>
+          </form>
+          <div class="result-panel" id="predictResult" aria-live="polite">
+            <div class="result-empty"><div>
+              <i data-icon="scan-search"></i>
+              <h4 style="color:var(--text)">No prediction yet</h4>
+              <p class="small">Enter readings and press <b>Predict</b>. Results are model estimates, not confirmation of a physical failure.</p>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ ANOMALIES -->
+    <section class="section" id="anomalies" aria-labelledby="anomTitle">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow" style="color:var(--violet)"><i data-icon="scan-search"></i>Anomaly detection</div>
+          <h2 id="anomTitle">Unusual sensor readings (IQR method)</h2>
+          <p>A reading is flagged when it falls outside <code>[Q1 − k·IQR, Q3 + k·IQR]</code> for its sensor. <b>An unusual reading is not automatically a machine failure.</b></p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <div class="field"><label for="anFeature">Sensor to inspect</label>
+            <select class="select" id="anFeature">
+              <option value="Rotational_Speed">Rotational speed (rpm)</option>
+              <option value="Torque">Torque (Nm)</option>
+              <option value="Air_Temperature">Air temperature (K)</option>
+              <option value="Process_Temperature">Process temperature (K)</option>
+              <option value="Tool_Wear">Tool wear (min)</option>
+              <option value="Temp_Difference">Temperature difference (K)</option>
+              <option value="Power">Mechanical power (W)</option>
+              <option value="all">All sensors (any flagged)</option>
+            </select></div>
+          <div class="field"><label for="anK">IQR multiplier k</label>
+            <select class="select" id="anK"><option value="1.5" selected>1.5 (standard)</option><option value="2">2.0</option><option value="3">3.0 (extreme only)</option></select></div>
+          <div class="field"><label for="anType">Machine type</label>
+            <select class="select" id="anType"><option value="all">All types</option><option value="L">L</option><option value="M">M</option><option value="H">H</option></select></div>
+          <div class="field"><label for="anFail">Actual status</label>
+            <select class="select" id="anFail"><option value="all">All records</option><option value="failed">Failed</option><option value="normal">Normal</option></select></div>
+          <div class="spacer"></div>
+          <button class="btn" id="anExport"><i data-icon="download"></i>Export anomalies CSV</button>
+        </div>
+
+        <div class="grid g-4" style="margin-top:16px" id="anStats"></div>
+        <div class="grid g-12" style="margin-top:16px">
+          <div class="span-6 loading-block" id="anChartWrap"><div class="chart" id="chAnom"></div></div>
+          <div class="span-6">
+            <div class="notice neutral" id="anCross"><i data-icon="info"></i><div>—</div></div>
+            <div class="table-wrap" style="margin-top:12px;max-height:300px"><table class="data" id="anTable"><thead></thead><tbody></tbody></table></div>
+            <p class="small muted" id="anTableNote" style="margin-top:8px"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ MAINTENANCE -->
+    <section class="section" id="maintenance" aria-labelledby="mtTitle">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow" style="color:var(--teal)"><i data-icon="wrench"></i>Maintenance planner</div>
+          <h2 id="mtTitle">Review queue</h2>
+          <p>Records that deserve a closer look, ranked by transparent rules. Priorities are <b>not</b> calibrated failure probabilities.</p>
+        </div>
+      </div>
+      <div class="grid g-12">
+        <div class="card span-12">
+          <div class="card-head"><div><div class="card-title"><i data-icon="list-checks"></i>Priority rules</div><div class="card-sub" id="mtNote"></div></div>
+            <div class="legend-strip"><span class="tag tag-model">Model score</span><span class="tag tag-anomaly">Statistical anomaly</span><span class="tag tag-actual">Actual label (shown for reference)</span></div></div>
+          <div id="mtRules" class="rules-row"></div>
+        </div>
+        <div class="card span-12 loading-block" id="mtCard">
+          <div class="toolbar">
+            <div class="field" style="flex:1 1 240px"><label for="mtSearch">Search</label>
+              <div class="search-wrap"><i data-icon="search"></i><input class="input" id="mtSearch" type="search" placeholder="Product ID, UDI or sensor name…"></div></div>
+            <div class="field"><label for="mtPriority">Priority</label>
+              <select class="select" id="mtPriority"><option value="all">All priorities</option><option>High</option><option>Medium</option><option>Low</option></select></div>
+            <div class="field"><label for="mtType">Type</label>
+              <select class="select" id="mtType"><option value="all">All</option><option>L</option><option>M</option><option>H</option></select></div>
+            <div class="field"><label for="mtFail">Actual label</label>
+              <select class="select" id="mtFail"><option value="all">All</option><option value="failed">Failed</option><option value="normal">Normal</option></select></div>
+          </div>
+          <div class="toolbar" style="margin:12px 0 14px">
+            <label class="chip-check"><input type="checkbox" id="mtHideReviewed"><span><i data-icon="eye"></i>Hide reviewed</span></label>
+            <span class="small muted" id="mtReviewedCount">0 reviewed this session</span>
+            <div class="spacer"></div>
+            <button class="btn btn-sm" id="mtClearReviewed"><i data-icon="rotate-ccw"></i>Clear reviewed</button>
+            <button class="btn btn-sm btn-primary" id="mtExport"><i data-icon="download"></i>Export list CSV</button>
+          </div>
+          <div class="table-wrap" style="max-height:560px"><table class="data" id="mtTable">
+            <thead><tr>
+              <th>Reviewed</th>
+              <th class="sortable" data-sort="UDI">UDI</th>
+              <th>Product</th>
+              <th class="sortable" data-sort="Type">Type</th>
+              <th class="sortable" data-sort="priority">Priority</th>
+              <th class="sortable r" data-sort="model_score">Model score</th>
+              <th class="sortable r" data-sort="n_anomalous">Anomalies</th>
+              <th class="sortable r" data-sort="Torque">Torque</th>
+              <th class="sortable r" data-sort="Rotational_Speed">Speed</th>
+              <th class="sortable r" data-sort="Tool_Wear">Tool wear</th>
+              <th>Actual label</th>
+              <th>Basis for priority</th>
+            </tr></thead><tbody></tbody></table></div>
+          <div class="table-foot">
+            <span id="mtCount">—</span>
+            <div class="pager">
+              <select class="select" id="mtPageSize" style="height:32px;width:auto" aria-label="Rows per page"><option>25</option><option>50</option><option>100</option></select>
+              <button class="btn btn-sm" id="mtPrev">Previous</button>
+              <span id="mtPage" class="num">1 / 1</span>
+              <button class="btn btn-sm" id="mtNext">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>MachineScope · Industrial Failure Intelligence · educational analytics prototype</span>
+    <span>Predictions are model estimates and must not replace inspection or safety procedures.</span>
+  </footer>
+
+  <script src="vendor/icons.js"></script>
+  <script src="vendor/plotly.min.js"></script>
+  <script src="common.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
